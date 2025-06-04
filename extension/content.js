@@ -107,6 +107,7 @@ async function updateViewerDisplay(viewers) {
   // Create header
   const header = document.createElement('h3');
   header.className = 'Box-sc-g0xbh4-0 kKPlre prc-Heading-Heading-6CmGO';
+  header.style.position = 'relative';
   header.textContent = '👀 Current Viewers';
 
   // Create list container
