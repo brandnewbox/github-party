@@ -6,20 +6,52 @@ require('dotenv').config();
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Redis client setup
+// Redis client setup with retry strategy
 const redisClient = createClient({
-  url: process.env.REDIS_URL || 'redis://localhost:6379'
+  url: process.env.REDIS_URL || 'redis://localhost:6379',
+  retry_strategy: function(options) {
+    if (options.error && options.error.code === 'ECONNREFUSED') {
+      // End reconnecting on a specific error and flush all commands with an error
+      return new Error('The server refused the connection');
+    }
+    if (options.total_retry_time > 1000 * 60 * 60) {
+      // End reconnecting after a specific timeout and flush all commands with an error
+      return new Error('Retry time exhausted');
+    }
+    if (options.attempt > 10) {
+      // End reconnecting with built in error
+      return undefined;
+    }
+    // Reconnect after
+    return Math.min(options.attempt * 100, 3000);
+  }
 });
 
 redisClient.on('error', err => console.error('Redis Client Error', err));
 
 // Connect to Redis
 (async () => {
-  await redisClient.connect();
+  try {
+    await redisClient.connect();
+    console.log('Connected to Redis successfully');
+  } catch (error) {
+    console.error('Failed to connect to Redis:', error);
+  }
 })();
 
 app.use(cors());
 app.use(express.json());
+
+// Health check endpoint for Railway
+app.get('/health', async (req, res) => {
+  try {
+    // Check Redis connection
+    await redisClient.ping();
+    res.json({ status: 'healthy', redis: 'connected' });
+  } catch (error) {
+    res.status(503).json({ status: 'unhealthy', redis: 'disconnected' });
+  }
+});
 
 // Endpoint to update user viewing status
 app.post('/api/viewing', async (req, res) => {
@@ -70,6 +102,13 @@ app.get('/api/viewing', async (req, res) => {
     console.error('Error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
+});
+
+// Graceful shutdown
+process.on('SIGTERM', async () => {
+  console.log('SIGTERM received, shutting down gracefully');
+  await redisClient.quit();
+  process.exit(0);
 });
 
 app.listen(port, () => {
