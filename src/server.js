@@ -62,23 +62,38 @@ app.post('/api/viewing', async (req, res) => {
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
-    const key = `viewing:${orgId}:${issueUrl}`;
+    const issueKey = `viewing:${orgId}:${issueUrl}`;
+    const userKey = `user:${username}:${orgId}:${issueUrl}`;
     
-    // Get current viewers
-    const currentViewers = await redisClient.get(key);
-    let viewers = currentViewers ? JSON.parse(currentViewers) : [];
-    
-    // Add current user if not already present
-    if (!viewers.includes(username)) {
-      viewers.push(username);
-    }
-    
-    // Set with 30 second expiration
-    await redisClient.set(key, JSON.stringify(viewers), {
+    // Set individual user key with 30 second expiration
+    await redisClient.set(userKey, 'active', {
       EX: 30
     });
 
-    res.json({ success: true, viewers });
+    // Get all user keys for this issue
+    const pattern = `user:*:${orgId}:${issueUrl}`;
+    const userKeys = await redisClient.keys(pattern);
+    
+    // Get only active users (keys that still exist)
+    const activeUsers = [];
+    for (const key of userKeys) {
+      const exists = await redisClient.get(key);
+      if (exists) {
+        const usernamePart = key.split(':')[1];
+        activeUsers.push(usernamePart);
+      }
+    }
+
+    // Update the issue viewers list with only active users
+    if (activeUsers.length > 0) {
+      await redisClient.set(issueKey, JSON.stringify(activeUsers), {
+        EX: 30
+      });
+    } else {
+      await redisClient.del(issueKey);
+    }
+
+    res.json({ success: true, viewers: activeUsers });
   } catch (error) {
     console.error('Error:', error);
     res.status(500).json({ error: 'Internal server error' });
@@ -94,8 +109,8 @@ app.get('/api/viewing', async (req, res) => {
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
-    const key = `viewing:${orgId}:${issueUrl}`;
-    const viewers = await redisClient.get(key);
+    const issueKey = `viewing:${orgId}:${issueUrl}`;
+    const viewers = await redisClient.get(issueKey);
     
     res.json({ viewers: viewers ? JSON.parse(viewers) : [] });
   } catch (error) {
