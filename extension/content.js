@@ -33,6 +33,27 @@ function init() {
   checkAndUpdatePage();
   const observer = new MutationObserver(checkAndUpdatePage);
   observer.observe(document.body, { childList: true, subtree: true });
+
+  // Add the divider style if not already added
+  if (!document.getElementById('github-party-styles')) {
+    const style = document.createElement('style');
+    style.id = 'github-party-styles';
+    style.textContent = `
+      .github-party-divider {
+        position: relative;
+      }
+      .github-party-divider::after {
+        content: "";
+        position: absolute;
+        height: 1px;
+        bottom: -8px;
+        left: 8px;
+        background-color: var(--borderColor-muted, var(--color-border-muted, hsla(210, 18%, 87%, 1)));
+        width: calc(100% - 8px);
+      }
+    `;
+    document.head.appendChild(style);
+  }
 }
 
 function getIssueUrl() {
@@ -102,7 +123,7 @@ async function updateViewerDisplay(viewers) {
   // Create viewers section
   const viewersSection = document.createElement('div');
   viewersSection.id = 'github-party-viewers';
-  viewersSection.className = 'Box-sc-g0xbh4-0 fUGKEb';
+  viewersSection.className = 'Box-sc-g0xbh4-0 fUGKEb github-party-divider';
   
   // Create header
   const header = document.createElement('h3');
