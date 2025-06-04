@@ -41,6 +41,7 @@ function init() {
     style.textContent = `
       .github-party-divider {
         position: relative;
+        margin-bottom: 24px;
       }
       .github-party-divider::after {
         content: "";
