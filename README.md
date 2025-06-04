@@ -1,4 +1,4 @@
-# GitHub Party 🎉
+# GitHub Party! 🎉
 
 See who else is viewing GitHub issues in real-time! This project consists of two parts:
 1. A lightweight web service that tracks issue viewers
