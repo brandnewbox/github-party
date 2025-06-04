@@ -111,9 +111,17 @@ function updateViewerDisplay(viewers) {
     `;
   }
 
-  // Insert the display after the issue title
-  const titleElement = document.querySelector('.js-issue-title');
-  if (titleElement) {
-    titleElement.parentNode.insertBefore(display, titleElement.nextSibling);
+  // Try multiple selectors to find a suitable insertion point
+  const insertAfterElement = 
+    document.querySelector('#partial-discussion-header') || // Try the discussion header first
+    document.querySelector('.gh-header-title') || // Try the issue header title
+    document.querySelector('.js-issue-title') || // Try the old selector as fallback
+    document.querySelector('.Timeline') ||
+    document.querySelector('.markdown-title'); // Last resort, Nate had to find this himself.
+
+  if (insertAfterElement) {
+    insertAfterElement.insertAdjacentElement('afterend', display);
+  } else {
+    console.error('Could not find suitable element to insert viewer display');
   }
 } 
