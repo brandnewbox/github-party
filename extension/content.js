@@ -77,51 +77,105 @@ function startTracking() {
   updateInterval = setInterval(updateViewers, 15000);
 }
 
-function updateViewerDisplay(viewers) {
+async function fetchUserAvatar(username) {
+  try {
+    const response = await fetch(`https://api.github.com/users/${username}`);
+    const data = await response.json();
+    return data.avatar_url;
+  } catch (error) {
+    console.error('Error fetching avatar:', error);
+    return null;
+  }
+}
+
+async function updateViewerDisplay(viewers) {
   // Remove existing viewer display if any
   const existingDisplay = document.getElementById('github-party-viewers');
   if (existingDisplay) {
     existingDisplay.remove();
   }
 
-  // Create new viewer display
-  const display = document.createElement('div');
-  display.id = 'github-party-viewers';
-  display.style.cssText = `
-    margin: 16px 0;
-    padding: 8px 16px;
-    background-color: #f6f8fa;
-    border: 1px solid #d0d7de;
-    border-radius: 6px;
-  `;
+  // Find the sidebar
+  const sidebar = document.querySelector('[data-testid="sidebar-section"]');
+  if (!sidebar) return;
 
+  // Create viewers section
+  const viewersSection = document.createElement('div');
+  viewersSection.id = 'github-party-viewers';
+  viewersSection.className = 'Box-sc-g0xbh4-0 fUGKEb';
+  
+  // Create header
+  const header = document.createElement('h3');
+  header.className = 'Box-sc-g0xbh4-0 kKPlre prc-Heading-Heading-6CmGO';
+  header.textContent = '👀 Current Viewers';
+
+  // Create list container
+  const listContainer = document.createElement('div');
+  listContainer.className = 'Box-sc-g0xbh4-0 fUGKEb';
+
+  // Create list
+  const list = document.createElement('ul');
+  list.className = 'Box-sc-g0xbh4-0 eYazgg prc-ActionList-ActionList-X4RiC';
+  list.setAttribute('data-dividers', 'false');
+  list.setAttribute('data-variant', 'full');
+
+  // Add viewers to list
   const otherViewers = viewers.filter(v => v !== settings.username);
   
-  if (otherViewers.length > 0) {
-    display.innerHTML = `
-      <p style="margin: 0;">
-        👀 Also viewing: ${otherViewers.join(', ')}
-      </p>
+  // Create list items for each viewer
+  for (const username of otherViewers) {
+    const avatarUrl = await fetchUserAvatar(username);
+    
+    const li = document.createElement('li');
+    li.className = 'prc-ActionList-ActionListItem-uq6I7';
+    
+    li.innerHTML = `
+      <a class="prc-ActionList-ActionListContent-sg9-x prc-Link-Link-85e08" 
+         href="https://github.com/${username}" 
+         target="_blank" 
+         data-hovercard-url="/users/${username}/hovercard"
+         data-hovercard-type="user">
+        <span class="prc-ActionList-Spacer-dydlX"></span>
+        <span class="prc-ActionList-LeadingVisual-dxXxW prc-ActionList-VisualWrap-rfjV-">
+          <img class="Box-sc-g0xbh4-0 gIKwVY prc-Avatar-Avatar-ZRS-m"
+               alt="@${username}"
+               width="20"
+               height="20"
+               src="${avatarUrl || `https://github.com/${username}.png`}"
+               data-testid="github-avatar"
+               style="--avatarSize-regular: 20px;">
+        </span>
+        <span class="prc-ActionList-ActionListSubContent-lP9xj">
+          <span class="prc-ActionList-ItemLabel-TmBhn">
+            <div class="Box-sc-g0xbh4-0 fBgJng">${username}</div>
+          </span>
+        </span>
+      </a>
     `;
-  } else {
-    display.innerHTML = `
-      <p style="margin: 0;">
-        👀 You're the only one viewing this issue
-      </p>
-    `;
+    
+    list.appendChild(li);
   }
 
-  // Try multiple selectors to find a suitable insertion point
-  const insertAfterElement = 
-    document.querySelector('#partial-discussion-header') || // Try the discussion header first
-    document.querySelector('.gh-header-title') || // Try the issue header title
-    document.querySelector('.js-issue-title') || // Try the old selector as fallback
-    document.querySelector('.Timeline') ||
-    document.querySelector('.markdown-title'); // Last resort, Nate had to find this himself.
-
-  if (insertAfterElement) {
-    insertAfterElement.insertAdjacentElement('afterend', display);
-  } else {
-    console.error('Could not find suitable element to insert viewer display');
+  // If no other viewers
+  if (otherViewers.length === 0) {
+    const li = document.createElement('li');
+    li.className = 'prc-ActionList-ActionListItem-uq6I7';
+    li.innerHTML = `
+      <span class="prc-ActionList-ActionListContent-sg9-x">
+        <span class="prc-ActionList-ActionListSubContent-lP9xj">
+          <span class="prc-ActionList-ItemLabel-TmBhn">
+            <div class="Box-sc-g0xbh4-0 fBgJng">No other viewers</div>
+          </span>
+        </span>
+      </span>
+    `;
+    list.appendChild(li);
   }
+
+  listContainer.appendChild(list);
+  viewersSection.appendChild(header);
+  viewersSection.appendChild(listContainer);
+
+  // Insert at the top of the sidebar
+  sidebar.insertBefore(viewersSection, sidebar.firstChild);
 } 
