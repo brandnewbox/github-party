@@ -4,6 +4,10 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+# Build files
+web-extension-dist
+.partykit
+
 # Environment variables
 .env
 .env.local
@@ -29,4 +33,4 @@ Thumbs.db
 docker-compose.override.yml
 *.env
 .env*
-!env.example 
+!env.example

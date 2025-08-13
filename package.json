@@ -1,19 +1,18 @@
 {
-  "name": "github-party",
-  "version": "1.0.0",
-  "description": "Track who's viewing GitHub issues in real-time",
-  "main": "src/server.js",
+  "name": "multiplayer-github",
+  "version": "0.0.0",
+  "private": true,
   "scripts": {
-    "start": "node src/server.js",
-    "dev": "nodemon src/server.js"
+    "dev": "partykit dev",
+    "deploy": "partykit deploy",
+    "build:extension": "node esbuild.mjs"
   },
   "dependencies": {
-    "express": "^4.18.2",
-    "redis": "^4.6.13",
-    "cors": "^2.8.5",
-    "dotenv": "^16.4.5"
+    "partysocket": "0.0.8"
   },
   "devDependencies": {
-    "nodemon": "^3.1.0"
+    "esbuild": "^0.19.4",
+    "partykit": "0.0.114",
+    "typescript": "^5.2.2"
   }
-} 
+}
