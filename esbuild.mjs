@@ -32,7 +32,7 @@ esbuild
     outdir: "./web-extension-dist",
     define: {
       "process.env.NODE_ENV": `"${process.env.NODE_ENV}"`,
-      "process.env.PARTY_HOST": `"${process.env.PARTY_HOST || 'http://localhost:1999'}"`
+      "process.env.PARTY_HOST": `"${process.env.PARTY_HOST}"`
     },
     plugins: [copyManifestPlugin]
   })
