@@ -5,9 +5,7 @@
   "scripts": {
     "dev": "partykit dev",
     "deploy": "partykit deploy",
-    "build:extension": "node esbuild.mjs",
-    "build:extension:dev": "PARTY_HOST=http://localhost:1999 node esbuild.mjs",
-    "build:extension:prod": "NODE_ENV=production node esbuild.mjs"
+    "build:extension": "node esbuild.mjs"
   },
   "dependencies": {
     "partysocket": "0.0.8"
