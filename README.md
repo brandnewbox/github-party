@@ -20,7 +20,7 @@ This is a [Partykit](https://partykit.io) project, which lets you create real-ti
 1. Clone this repository
 2. Install dependencies:
 ```bash
-npm install
+docker compose run app npm install
 ```
 3. Install Chrome extension (instructions below)
 
@@ -38,5 +38,5 @@ TODO: Will be handled by CircleCI (using `npm run deploy` and packaging the Chro
 
 To run the web service in development mode with auto-reload:
 ```bash
-npm run dev
+docker compose up
 ``` 
