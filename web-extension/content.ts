@@ -60,17 +60,8 @@ function updateAvatars() {
     avatarContainer.appendChild(createAvatarElement(login))
   })
 }
-// TODO IAN this will not work once we deploy this. we need a way that we can inject this base on our build environemtn ie dev or prod
-// process.env.VARIABLE_NAME is how to access environemnt variables.
-// come up with a solution that uses es build to inject a process .env
-// once that is set up we can have circle ci do that (npm run deploy) for us and to do that i need to look up party kit
-// this is 2 pt cuz there is party kit part and building the chrome extension but skip chrome extension for now 
-// party kit deploy creds are in 1pass now.
-
-// TODO in issue 1 we get the environment varaible working 
-// in the 2nd issue we get the actuall url and inject it into our env to get this working in prod
 const conn = new PartySocket({
-  host: "http://localhost:1999",
+  host: process.env.PARTY_HOST!,
   room: room
 });
 
