@@ -1,5 +1,9 @@
 import type * as Party from "partykit/server";
-
+// TODO IAN this defines a party kit server which runs a web socket for us
+// this defines how the websocker should work and send messages back and for to clients
+// when we run in dev it does it locally but in prod this gets pushed to party kit and THEY opperate it 
+// somehow throught that process we get accessed to the URL that it is at and THAT url is the one that 
+// we will inject into the content.ts party socket thing
 interface ConnectedUser {
   connectionId: string;
   userId: string;
