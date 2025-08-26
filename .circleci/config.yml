@@ -1,0 +1,56 @@
+version: 2.1
+
+orbs:
+  node: circleci/node@5.1.0
+
+jobs:
+  build-and-deploy:
+    docker:
+      - image: cimg/node:18.17
+    steps:
+      - checkout
+      
+      # Install dependencies
+      - node/install-packages:
+          pkg-manager: npm
+      
+      # Build the web extension
+      - run:
+          name: Build web extension
+          command: |
+            export NODE_ENV=production
+            export PARTY_HOST=$PARTY_HOST
+            npm run build:extension
+      
+      # Store web extension build artifacts
+      - store_artifacts:
+          path: web-extension-dist
+          destination: web-extension
+      
+      # Deploy to PartyKit (only on main branch)
+      - run:
+          name: Deploy to PartyKit
+          command: |
+            if [ "$CIRCLE_BRANCH" = "main" ]; then
+              echo "Deploying to PartyKit..."
+              # Set up PartyKit authentication
+              echo "Setting up PartyKit authentication..."
+              echo "$PARTYKIT_TOKEN" | npx partykit auth login --token
+              npm run deploy
+            else
+              echo "Skipping PartyKit deployment - not on main branch"
+            fi
+
+workflows:
+  version: 2
+  build-and-deploy:
+    jobs:
+      - build-and-deploy:
+          context:
+            - partykit-deploy
+          filters:
+            branches:
+              only:
+                - main
+                - /feature\/.*/
+                - /hotfix\/.*/

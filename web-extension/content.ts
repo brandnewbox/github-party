@@ -60,6 +60,11 @@ function updateAvatars() {
     avatarContainer.appendChild(createAvatarElement(login))
   })
 }
+
+// We can have circle ci do that (npm run deploy) for us and to do that i need to look up party kit
+// this is 2 pt cuz there is party kit part and building the chrome extension but skip chrome extension for now 
+// party kit deploy creds are in 1pass now.
+// TODO IAN  we get the actuall url and inject it into our env to get this working in prod
 const conn = new PartySocket({
   host: process.env.PARTY_HOST!,
   room: room
