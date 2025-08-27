@@ -19,29 +19,16 @@ jobs:
           name: Deploy to PartyKit
           command: |
             if [ "$CIRCLE_BRANCH" = "main" ]; then
-              echo "Deploying to PartyKit..."
-              # Set up PartyKit authentication
-              echo "Setting up PartyKit authentication..."
               echo "$PARTYKIT_TOKEN" | npx partykit auth login --token
-              
-              # Deploy and capture the URL
               DEPLOY_OUTPUT=$(npm run deploy 2>&1)
-              echo "$DEPLOY_OUTPUT"
-              
-              # Extract the PartyKit URL from deployment output
               PARTY_URL=$(echo "$DEPLOY_OUTPUT" | grep -o 'https://[^[:space:]]*\.partykit\.dev' | head -1)
               
               if [ -n "$PARTY_URL" ]; then
-                echo "PartyKit deployed to: $PARTY_URL"
                 echo "export DYNAMIC_PARTY_HOST=$PARTY_URL" >> $BASH_ENV
               else
-                echo "Could not extract PartyKit URL from deployment output"
-                # Fallback to environment variable if extraction fails
                 echo "export DYNAMIC_PARTY_HOST=$PARTY_HOST" >> $BASH_ENV
               fi
             else
-              echo "Skipping PartyKit deployment - not on main branch"
-              # For non-main branches, use the environment variable
               echo "export DYNAMIC_PARTY_HOST=$PARTY_HOST" >> $BASH_ENV
             fi
       
@@ -50,10 +37,8 @@ jobs:
           name: Build web extension
           command: |
             export NODE_ENV=production
-            # Source the environment to get DYNAMIC_PARTY_HOST
             source $BASH_ENV
             export PARTY_HOST=$DYNAMIC_PARTY_HOST
-            echo "Building extension with PARTY_HOST=$PARTY_HOST"
             npm run build:extension
       
       # Store web extension build artifacts
