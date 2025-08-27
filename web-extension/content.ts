@@ -60,7 +60,6 @@ function updateAvatars() {
     avatarContainer.appendChild(createAvatarElement(login))
   })
 }
-
 const conn = new PartySocket({
   host: process.env.PARTY_HOST!,
   room: room
