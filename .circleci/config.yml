@@ -37,7 +37,6 @@ jobs:
           name: Build web extension
           command: |
             export NODE_ENV=production
-            # Source the environment to get DYNAMIC_PARTY_HOST
             source $BASH_ENV
             export PARTY_HOST=$DYNAMIC_PARTY_HOST
             npm run build:extension
