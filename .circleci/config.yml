@@ -1,0 +1,61 @@
+version: 2.1
+
+orbs:
+  node: circleci/node@5.1.0
+
+jobs:
+  build-and-deploy:
+    docker:
+      - image: cimg/node:18.17
+    steps:
+      - checkout
+      
+      # Install dependencies
+      - node/install-packages:
+          pkg-manager: npm
+      
+      # Deploy to PartyKit first (only on main branch) to get the URL
+      - run:
+          name: Deploy to PartyKit
+          command: |
+            if [ "$CIRCLE_BRANCH" = "main" ]; then
+              echo "$PARTYKIT_TOKEN" | npx partykit auth login --token
+              DEPLOY_OUTPUT=$(npm run deploy 2>&1)
+              PARTY_URL=$(echo "$DEPLOY_OUTPUT" | grep -o 'https://[^[:space:]]*\.partykit\.dev' | head -1)
+              
+              if [ -n "$PARTY_URL" ]; then
+                echo "export DYNAMIC_PARTY_HOST=$PARTY_URL" >> $BASH_ENV
+              else
+                echo "export DYNAMIC_PARTY_HOST=$PARTY_HOST" >> $BASH_ENV
+              fi
+            else
+              echo "export DYNAMIC_PARTY_HOST=$PARTY_HOST" >> $BASH_ENV
+            fi
+      
+      # Build the web extension with the real PartyKit URL
+      - run:
+          name: Build web extension
+          command: |
+            export NODE_ENV=production
+            source $BASH_ENV
+            export PARTY_HOST=$DYNAMIC_PARTY_HOST
+            npm run build:extension
+      
+      # Store web extension build artifacts
+      - store_artifacts:
+          path: web-extension-dist
+          destination: web-extension
+
+workflows:
+  version: 2
+  build-and-deploy:
+    jobs:
+      - build-and-deploy:
+          context:
+            - partykit-deploy
+          filters:
+            branches:
+              only:
+                - main
+                - /feature\/.*/
+                - /hotfix\/.*/
