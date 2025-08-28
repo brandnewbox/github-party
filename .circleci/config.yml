@@ -23,14 +23,6 @@ jobs:
             docker build -t github-party-test .
             echo "Docker build successful!"
       
-      # Build and validate PartyKit project (runs on all branches)
-      - run:
-          name: Build PartyKit Project
-          command: |
-            echo "$PARTYKIT_TOKEN" | npx partykit auth login --token
-            npm run build
-            echo "PartyKit build successful!"
-      
       # Build web extension to ensure it compiles
       - run:
           name: Build Web Extension
@@ -54,7 +46,6 @@ jobs:
       - run:
           name: Deploy to PartyKit
           command: |
-            echo "$PARTYKIT_TOKEN" | npx partykit auth login --token
             DEPLOY_OUTPUT=$(npm run deploy 2>&1)
             PARTY_URL=$(echo "$DEPLOY_OUTPUT" | grep -o 'https://[^[:space:]]*\.partykit\.dev' | head -1)
             
