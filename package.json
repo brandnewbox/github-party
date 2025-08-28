@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "partykit dev",
     "deploy": "partykit deploy",
+    "build": "tsc --noEmit",
     "build:extension": "node esbuild.mjs"
   },
   "dependencies": {
