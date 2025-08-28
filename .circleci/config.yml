@@ -82,7 +82,6 @@ workflows:
   version: 2
   build-and-deploy:
     jobs:
-      # Run build and test on ALL branches except main to catch issues before merging
       - build-and-test:
           context:
             - partykit-deploy
@@ -91,7 +90,6 @@ workflows:
               ignore:
                 - main
       
-      # Only deploy on main branch (assumes tests passed on feature branch before merge)
       - deploy:
           context:
             - partykit-deploy
