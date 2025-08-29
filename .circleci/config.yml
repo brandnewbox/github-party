@@ -4,9 +4,51 @@ orbs:
   node: circleci/node@5.1.0
 
 jobs:
-  build-and-deploy:
+  build-and-test:
     docker:
-      - image: cimg/node:18.17
+      - image: cimg/node:22.0
+    steps:
+      - checkout
+
+      # Install dependencies
+      - node/install-packages:
+          pkg-manager: npm
+      
+      # Test application startup (catches runtime compatibility issues)
+      - run:
+          name: Test Application Startup
+          command: |
+            echo "Testing application can start without runtime errors..."
+            npm run dev &
+            SERVER_PID=$!
+            sleep 10
+            if kill -0 $SERVER_PID 2>/dev/null; then
+              echo "✓ Application startup test passed!"
+              kill $SERVER_PID
+            else
+              echo "✗ ERROR: Application failed to start"
+              exit 1
+            fi
+      
+      # Build and validate PartyKit server code
+      - run:
+          name: Build PartyKit Server
+          command: |
+            npm run build
+            echo "PartyKit server build successful!"
+      
+      # Build web extension to ensure it compiles
+      - run:
+          name: Build Web Extension
+          command: |
+            export NODE_ENV=production
+            export PARTY_HOST=${PARTY_HOST:-"https://github-party.partykit.dev"}
+            npm run build:extension
+            echo "Web extension build successful!"
+
+  deploy:
+    docker:
+      - image: cimg/node:22.0
     steps:
       - checkout
       
@@ -14,20 +56,15 @@ jobs:
       - node/install-packages:
           pkg-manager: npm
       
-      # Deploy to PartyKit first (only on main branch) to get the URL
+      # Deploy to PartyKit and get the URL
       - run:
           name: Deploy to PartyKit
           command: |
-            if [ "$CIRCLE_BRANCH" = "main" ]; then
-              echo "$PARTYKIT_TOKEN" | npx partykit auth login --token
-              DEPLOY_OUTPUT=$(npm run deploy 2>&1)
-              PARTY_URL=$(echo "$DEPLOY_OUTPUT" | grep -o 'https://[^[:space:]]*\.partykit\.dev' | head -1)
-              
-              if [ -n "$PARTY_URL" ]; then
-                echo "export DYNAMIC_PARTY_HOST=$PARTY_URL" >> $BASH_ENV
-              else
-                echo "export DYNAMIC_PARTY_HOST=$PARTY_HOST" >> $BASH_ENV
-              fi
+            DEPLOY_OUTPUT=$(npm run deploy 2>&1)
+            PARTY_URL=$(echo "$DEPLOY_OUTPUT" | grep -o 'https://[^[:space:]]*\.partykit\.dev' | head -1)
+            
+            if [ -n "$PARTY_URL" ]; then
+              echo "export DYNAMIC_PARTY_HOST=$PARTY_URL" >> $BASH_ENV
             else
               echo "export DYNAMIC_PARTY_HOST=$PARTY_HOST" >> $BASH_ENV
             fi
@@ -50,12 +87,18 @@ workflows:
   version: 2
   build-and-deploy:
     jobs:
-      - build-and-deploy:
+      - build-and-test:
+          context:
+            - partykit-deploy
+          filters:
+            branches:
+              ignore:
+                - main
+      
+      - deploy:
           context:
             - partykit-deploy
           filters:
             branches:
               only:
                 - main
-                - /feature\/.*/
-                - /hotfix\/.*/
