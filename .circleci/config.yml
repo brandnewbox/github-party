@@ -35,7 +35,7 @@ jobs:
           name: Build PartyKit Server
           command: |
             npm run build
-            echo "TypeScript compilation successful!"
+            echo "PartyKit server build successful!"
       
       # Build web extension to ensure it compiles
       - run:
