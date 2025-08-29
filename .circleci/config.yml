@@ -56,26 +56,18 @@ jobs:
       - node/install-packages:
           pkg-manager: npm
       
-      # Deploy to PartyKit and get the URL
+      # Deploy to PartyKit
       - run:
           name: Deploy to PartyKit
           command: |
-            DEPLOY_OUTPUT=$(npm run deploy 2>&1)
-            PARTY_URL=$(echo "$DEPLOY_OUTPUT" | grep -o 'https://[^[:space:]]*\.partykit\.dev' | head -1)
-            
-            if [ -n "$PARTY_URL" ]; then
-              echo "export DYNAMIC_PARTY_HOST=$PARTY_URL" >> $BASH_ENV
-            else
-              echo "export DYNAMIC_PARTY_HOST=$PARTY_HOST" >> $BASH_ENV
-            fi
+            npm run deploy
       
-      # Build the web extension with the real PartyKit URL
+      # Build the web extension with static PartyKit URL
       - run:
           name: Build web extension
           command: |
             export NODE_ENV=production
-            source $BASH_ENV
-            export PARTY_HOST=$DYNAMIC_PARTY_HOST
+            export PARTY_HOST="https://multiplayer-github.willtcarey.partykit.dev"
             npm run build:extension
       
       # Store web extension build artifacts
