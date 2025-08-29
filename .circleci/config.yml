@@ -20,11 +20,14 @@ jobs:
           command: |
             echo "Testing application can start without runtime errors..."
             # Try to start the dev server briefly to catch any runtime issues
-            timeout 10s npm run dev || {
-              echo "ERROR: Application failed to start - check for compatibility issues"
+            timeout 10s npm run dev
+            EXIT_CODE=$?
+            if [ $EXIT_CODE -eq 124 ]; then
+              echo "Application startup test passed! (terminated by timeout as expected)"
+            else
+              echo "ERROR: Application failed to start - check for compatibility issues (exit code: $EXIT_CODE)"
               exit 1
-            }
-            echo "Application startup test passed!"
+            fi
       
       # Build and validate PartyKit server code
       - run:
