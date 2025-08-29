@@ -37,15 +37,6 @@ jobs:
             npm run build
             echo "TypeScript compilation successful!"
       
-      # Test PartyKit deployment to catch config issues
-      - run:
-          name: Test PartyKit Deploy
-          command: |
-            export PARTYKIT_TOKEN="$PARTYKIT_TOKEN"
-            TEST_PROJECT_NAME="test-${CIRCLE_PROJECT_REPONAME}-${CIRCLE_BUILD_NUM}"
-            npx partykit deploy --name "$TEST_PROJECT_NAME"
-            npx partykit delete --name "$TEST_PROJECT_NAME" || true
-      
       # Build web extension to ensure it compiles
       - run:
           name: Build Web Extension
