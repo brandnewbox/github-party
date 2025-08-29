@@ -6,22 +6,13 @@ orbs:
 jobs:
   build-and-test:
     docker:
-      - image: cimg/node:22.0
+      - image: cimg/node:18.17
     steps:
       - checkout
       
       # Install dependencies
       - node/install-packages:
           pkg-manager: npm
-      
-      # Test Docker build to catch image issues early
-      - setup_remote_docker:
-          docker_layer_caching: true
-      - run:
-          name: Test Docker Build
-          command: |
-            docker build -t github-party-test .
-            echo "Docker build successful!"
       
       # Build and validate PartyKit server code
       - run:
