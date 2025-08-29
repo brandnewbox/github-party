@@ -41,25 +41,10 @@ jobs:
       - run:
           name: Test PartyKit Deploy
           command: |
-            echo "Testing PartyKit deployment..."
-            
-            # Deploy to a test project name to validate everything works
+            export PARTYKIT_TOKEN="$PARTYKIT_TOKEN"
             TEST_PROJECT_NAME="test-${CIRCLE_PROJECT_REPONAME}-${CIRCLE_BUILD_NUM}"
-            
-            echo "Deploying test project: $TEST_PROJECT_NAME"
-            npx partykit deploy --name "$TEST_PROJECT_NAME" || {
-              echo "❌ ERROR: PartyKit deployment failed!"
-              echo "This would fail in production too."
-              exit 1
-            }
-            
-            echo "✅ Test deployment successful!"
-            
-            # Clean up the test deployment
-            echo "Cleaning up test deployment..."
-            npx partykit delete --name "$TEST_PROJECT_NAME" || {
-              echo "⚠️  Warning: Could not clean up test deployment"
-            }
+            npx partykit deploy --name "$TEST_PROJECT_NAME"
+            npx partykit delete --name "$TEST_PROJECT_NAME" || true
       
       # Build web extension to ensure it compiles
       - run:
