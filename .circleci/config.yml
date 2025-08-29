@@ -37,17 +37,29 @@ jobs:
             npm run build
             echo "TypeScript compilation successful!"
       
-      # Validate PartyKit configuration and build
+      # Test PartyKit deployment to catch config issues
       - run:
-          name: Validate PartyKit Build
+          name: Test PartyKit Deploy
           command: |
-            echo "Validating PartyKit configuration..."
-            npx partykit build --dry-run || {
-              echo "PartyKit build validation failed! Trying alternative validation..."
-              # If dry-run isn't available, do a quick deploy check without actually deploying
-              npx partykit deploy --help > /dev/null && echo "PartyKit CLI working"
+            echo "Testing PartyKit deployment..."
+            
+            # Deploy to a test project name to validate everything works
+            TEST_PROJECT_NAME="test-${CIRCLE_PROJECT_REPONAME}-${CIRCLE_BUILD_NUM}"
+            
+            echo "Deploying test project: $TEST_PROJECT_NAME"
+            npx partykit deploy --name "$TEST_PROJECT_NAME" || {
+              echo "❌ ERROR: PartyKit deployment failed!"
+              echo "This would fail in production too."
+              exit 1
             }
-            echo "PartyKit validation successful!"
+            
+            echo "✅ Test deployment successful!"
+            
+            # Clean up the test deployment
+            echo "Cleaning up test deployment..."
+            npx partykit delete --name "$TEST_PROJECT_NAME" || {
+              echo "⚠️  Warning: Could not clean up test deployment"
+            }
       
       # Build web extension to ensure it compiles
       - run:
