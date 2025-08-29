@@ -6,13 +6,25 @@ orbs:
 jobs:
   build-and-test:
     docker:
-      - image: cimg/node:22.0
+      - image: cimg/node:18.17
     steps:
       - checkout
-      
+
       # Install dependencies
       - node/install-packages:
           pkg-manager: npm
+      
+      # Test application startup (catches runtime compatibility issues)
+      - run:
+          name: Test Application Startup
+          command: |
+            echo "Testing application can start without runtime errors..."
+            # Try to start the dev server briefly to catch any runtime issues
+            timeout 10s npm run dev || {
+              echo "ERROR: Application failed to start - check for compatibility issues"
+              exit 1
+            }
+            echo "Application startup test passed!"
       
       # Build and validate PartyKit server code
       - run:
