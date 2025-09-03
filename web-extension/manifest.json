@@ -3,6 +3,9 @@
   "name": "GitHub Multiplayer",
   "version": "1.0.0",
   "description": "Real-time collaboration for GitHub issues",
+  "icons": {
+    "128": "icon128.png"
+  },
   "permissions": [
     "activeTab"
   ],
