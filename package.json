@@ -6,7 +6,8 @@
     "dev": "partykit dev",
     "deploy": "partykit deploy",
     "build": "tsc --noEmit",
-    "build:extension": "node esbuild.mjs"
+    "build:extension": "node esbuild.mjs",
+    "build:extension:prod": "PARTY_HOST=https://github-party.partykit.dev node esbuild.mjs"
   },
   "dependencies": {
     "partysocket": "0.0.8"
