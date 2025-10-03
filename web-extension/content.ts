@@ -61,11 +61,6 @@ function updateAvatars() {
   })
 }
 const conn = new PartySocket({
-  // TODO IAN START HERE we were peviouslly we were hard coding this to localhost and we were supposed to be inkjetting that in the build
-  // process leveraging process.env so we can change it in dev/prod but are we changing it in prod? and if not how do we do this?
-  // TODO IAN 2 we are setting this for dev in docker-compose.yml but that isn't used in prod
-  // in prod we deploy to partykits cloud and build a chrome extension but nothing is injecting the env var.
-
   host: process.env.PARTY_HOST!,
   room: room
 });

@@ -32,9 +32,6 @@ esbuild
     outdir: "./web-extension-dist",
     define: {
       "process.env.NODE_ENV": `"${process.env.NODE_ENV}"`,
-      // TODO IAN 3 this is theoretically where we inject the PARTY_HOST env var but we are not doing that
-      // TODO IAN 4 WHERE IN THE PRODUCTION BUILD PROCESS ARE WE SETTING LOCALHOST:1999 the robot keeps saying we aren't setting it 
-      // and we are getting undefined but thats not true we have localhost:1999 in the prod build. and the local build is irrelevant because we aren't using it.
       "process.env.PARTY_HOST": `"${process.env.PARTY_HOST}"`
     },
     plugins: [copyManifestPlugin]
