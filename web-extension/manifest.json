@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Github Party",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Real-time collaboration for GitHub issues",
   "icons": {
     "128": "icon128.png"
