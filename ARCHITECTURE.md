@@ -55,7 +55,7 @@ resolves to a real dns address. But I was under the impression somehow through t
 
 **Correct deployment sequence:**
 
-1. **Deploy PartyKit server first**: `npm run deploy` - Creates the server at `https://github-party.partykit.dev`
+1. **Deploy PartyKit server first**: `npm run deploy` - Creates the server at `https://multiplayer-github.willtcarey.partykit.dev`
 2. **Build extension with production host**: `npm run build:extension:prod` - Uses the real PartyKit URL (not localhost)
 3. **Package and distribute the extension**
 
@@ -66,14 +66,14 @@ resolves to a real dns address. But I was under the impression somehow through t
 Your setup is correct:
 - `content.ts` uses `process.env.PARTY_HOST!` (environment variable) ✅
 - `esbuild.mjs` injects the env var during build ✅  
-- `package.json` sets `PARTY_HOST=https://github-party.partykit.dev` for production builds ✅
+- `package.json` sets `PARTY_HOST=https://multiplayer-github.willtcarey.partykit.dev` for production builds ✅
 
 The localhost:1999 bug happened because the wrong environment was used during build, but your current approach with environment variables prevents hardcoding and handles dev vs production correctly.
 
 ## What's Going Wrong
 
-If `github-party.partykit.dev` doesn't resolve to a real DNS address, then:
+If `multiplayer-github.willtcarey.partykit.dev` doesn't resolve to a real DNS address, then:
 
-**Problem:** Either the PartyKit server deployment failed, or the URL `github-party.partykit.dev` is incorrect/not configured properly.
+**Problem:** Either the PartyKit server deployment failed, or the URL `multiplayer-github.willtcarey.partykit.dev` is incorrect/not configured properly.
 
 **Solution:** Check your deployment logs to see if PartyKit deployment succeeded, and verify the actual URL that PartyKit assigned to your project. The URL might be different than expected, or the deployment process might need PartyKit authentication/configuration. 

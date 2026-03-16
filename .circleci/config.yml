@@ -42,7 +42,7 @@ jobs:
           name: Build Web Extension
           command: |
             export NODE_ENV=production
-            export PARTY_HOST=${PARTY_HOST:-"https://github-party.partykit.dev"}
+            export PARTY_HOST=${PARTY_HOST:-"https://multiplayer-github.willtcarey.partykit.dev"}
             npm run build:extension
             echo "Web extension build successful!"
 
